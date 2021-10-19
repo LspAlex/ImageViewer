@@ -88,7 +88,7 @@ namespace Image.Tools
                     index = index - drawList.Count;
                 }
             }
-            CheckImageOutOfScreen();
+            CheckImageEdge();
             this.Refresh();
         }
 
@@ -134,13 +134,15 @@ namespace Image.Tools
             drawList[index] = resizeImage(imgList[index], new Size((int)(imgList[index].Width), (int)(imgList[index].Height)));            
         }
 
-        private void CheckImageOutOfScreen()
+        private void CheckImageEdge()
         {
             int maxImgLen = Math.Max(drawList[index].Width, drawList[index].Height);
+            int minImgLen = Math.Min(drawList[index].Width, drawList[index].Height);
+            int maxWindowLen = Math.Max(this.MinimumSize.Width, this.MinimumSize.Height);
             int minScreenLen = Math.Min(Screen.PrimaryScreen.WorkingArea.Width, Screen.PrimaryScreen.WorkingArea.Height);
+            double radio = ((double)Math.Max(drawList[index].Width, drawList[index].Height) / (double)Math.Min(drawList[index].Width, drawList[index].Height));
             if (maxImgLen > minScreenLen)
             {
-                double radio = ((double)Math.Max(drawList[index].Width, drawList[index].Height) / (double)Math.Min(drawList[index].Width, drawList[index].Height));
                 if (imgList[index].Width > imgList[index].Height)
                 {
                     drawList[index] = resizeImage(imgList[index], new Size(minScreenLen, (int)(minScreenLen / radio)));
@@ -148,6 +150,17 @@ namespace Image.Tools
                 else
                 {
                     drawList[index] = resizeImage(imgList[index], new Size((int)(minScreenLen / radio), minScreenLen));
+                }
+            }
+            if (minImgLen < maxWindowLen)
+            {
+                if (imgList[index].Width > imgList[index].Height)
+                {
+                    drawList[index] = resizeImage(imgList[index], new Size((int)(maxWindowLen * radio), maxWindowLen));
+                }
+                else
+                {
+                    drawList[index] = resizeImage(imgList[index], new Size(maxWindowLen, (int)(maxWindowLen * radio)));
                 }
             }
         }
